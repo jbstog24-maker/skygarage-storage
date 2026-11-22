@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Installer Area | SkyGarage Storage</title>
+<meta name="description" content="Scheduled install jobs for approved SkyGarage Storage installers.">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="index.html">
+      <img src="assets/logo.png" alt="SkyGarage Storage logo">
+      <span class="brand-name">Sky<span>Garage</span> Storage</span>
+    </a>
+    <nav class="main-nav" aria-label="Main navigation">
+      <a href="index.html">Home</a>
+      <a href="pricing.html">Products/Pricing</a>
+      <a href="installers.html">Installers</a>
+      <a href="book.html" class="nav-cta">Book</a>
+      <a href="login.html">Installer Login</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="page-hero">
+    <div class="container">
+      <h1>Installer Area</h1>
+      <p>Your scheduled install jobs.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container" style="max-width:800px;">
+      <p class="lead">Jobs you are assigned appear here. New jobs are added by SkyGarage Storage as bookings are confirmed.</p>
+      <p style="text-align:right;"><a href="#" id="logoutLink">Log out</a></p>
+      <div id="jobsStatus" class="lead">Loading your jobs...</div>
+      <div id="jobsList"></div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="footer-name">SkyGarage Storage</p>
+    <p>Dallas-Fort Worth, Texas</p>
+    <p>CeilingSAM Storage Elevator systems, sold and professionally installed in DFW</p>
+    <p>Contact us through the <a href="book.html">booking form</a> and we will get back to you</p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var statusEl = document.getElementById('jobsStatus');
+  var listEl = document.getElementById('jobsList');
+
+  function escapeHtml(value) {
+    return String(value == null ? '' : value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function renderJobs(jobs) {
+    if (!jobs || jobs.length === 0) {
+      statusEl.textContent = 'No jobs are scheduled right now. Check back soon.';
+      return;
+    }
+    statusEl.textContent = '';
+    jobs.forEach(function (job) {
+      var card = document.createElement('div');
+      card.className = 'job-card';
+      var title = [job.date, job.timeWindow].filter(Boolean).join(' - ');
+      var html = '';
+      if (title) html += '<h3>' + escapeHtml(title) + '</h3>';
+      if (job.city) html += '<p><strong>City:</strong> ' + escapeHtml(job.city) + '</p>';
+      if (job.product) html += '<p><strong>Product:</strong> ' + escapeHtml(job.product) + '</p>';
+      if (job.customerFirstName) html += '<p><strong>Customer:</strong> ' + escapeHtml(job.customerFirstName) + '</p>';
+      if (job.status) html += '<p><strong>Status:</strong> <span class="job-status">' + escapeHtml(job.status) + '</span></p>';
+      if (job.notes) html += '<p><strong>Notes:</strong> ' + escapeHtml(job.notes) + '</p>';
+      card.innerHTML = html;
+      listEl.appendChild(card);
+    });
+  }
+
+  fetch('/api/jobs')
+    .then(function (res) {
+      if (res.status === 401) {
+        window.location.href = '/login.html';
+        return null;
+      }
+      if (!res.ok) throw new Error('Jobs request failed');
+      return res.json();
+    })
+    .then(function (data) {
+      if (!data) return;
+      renderJobs(data.jobs || []);
+    })
+    .catch(function () {
+      statusEl.textContent = 'Your jobs could not be loaded. Please refresh the page or log in again.';
+    });
+
+  document.getElementById('logoutLink').addEventListener('click', function (event) {
+    event.preventDefault();
+    fetch('/api/logout', { method: 'POST' })
+      .catch(function () {})
+      .finally(function () {
+        window.location.href = '/login.html';
+      });
+  });
+})();
+</script>
+
+</body>
+</html>

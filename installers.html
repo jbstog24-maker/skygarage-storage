@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Installers | SkyGarage Storage</title>
+<meta name="description" content="Independent installers earn a flat $350 per completed Storage Elevator install in Dallas-Fort Worth. Apply here.">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="index.html">
+      <img src="assets/logo.png" alt="SkyGarage Storage logo">
+      <span class="brand-name">Sky<span>Garage</span> Storage</span>
+    </a>
+    <nav class="main-nav" aria-label="Main navigation">
+      <a href="index.html">Home</a>
+      <a href="pricing.html">Products/Pricing</a>
+      <a href="installers.html">Installers</a>
+      <a href="book.html" class="nav-cta">Book</a>
+      <a href="login.html">Installer Login</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="page-hero">
+    <div class="container">
+      <h1>Install for SkyGarage Storage</h1>
+      <p>Independent installers install CeilingSAM Storage Elevator systems for our customers across Dallas-Fort Worth.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="pay-highlight">
+        <p class="price">$350</p>
+        <p class="price-label">flat pay per completed install, paid per job</p>
+        <p style="color: var(--gray-600); margin:0;">No hourly math. Finish the install, get paid $350 for the job.</p>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <h3>What a job involves</h3>
+          <ul>
+            <li>Install one ceiling lift unit at a customer home in DFW</li>
+            <li>About 1 to 2 hours per install</li>
+            <li>Ladder work into ceiling joists</li>
+            <li>The unit is already shipped to the home before you arrive</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Requirements</h3>
+          <ul>
+            <li>Your own tools and vehicle</li>
+            <li>Comfortable with ladder work into ceiling joists</li>
+            <li>You must carry your own liability insurance</li>
+            <li>You work in the Dallas-Fort Worth area</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-alt">
+    <div class="container">
+      <h2>Installer Application</h2>
+      <p class="section-intro">Fill this out and we will review it. Approved installers get their access code for the installer area after approval.</p>
+      <div class="form-wrap">
+        <div class="form-card">
+          <div id="formMessage" class="form-message" role="status" aria-live="polite"></div>
+          <form id="installerForm" novalidate>
+            <input type="hidden" name="formType" value="installer">
+            <div class="field">
+              <label for="name">Full name</label>
+              <input type="text" id="name" name="name" required autocomplete="name">
+            </div>
+            <div class="field">
+              <label for="phone">Phone</label>
+              <input type="tel" id="phone" name="phone" required autocomplete="tel">
+            </div>
+            <div class="field">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" required autocomplete="email">
+            </div>
+            <div class="field">
+              <label for="areaCovered">Area covered</label>
+              <input type="text" id="areaCovered" name="areaCovered" placeholder="Cities or parts of DFW you cover" required>
+            </div>
+            <div class="field">
+              <label>Do you carry your own liability insurance?</label>
+              <div class="radio-row">
+                <label><input type="radio" name="hasLiabilityInsurance" value="Yes" required> Yes</label>
+                <label><input type="radio" name="hasLiabilityInsurance" value="No"> No</label>
+              </div>
+            </div>
+            <div class="field">
+              <label for="experience">Experience</label>
+              <textarea id="experience" name="experience" placeholder="Tell us about your install, carpentry, or related experience"></textarea>
+            </div>
+            <div class="field">
+              <label for="availability">Availability</label>
+              <textarea id="availability" name="availability" placeholder="Days and times you are usually available for installs"></textarea>
+            </div>
+            <button type="submit" class="btn" style="width:100%;">Submit Application</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="footer-name">SkyGarage Storage</p>
+    <p>Dallas-Fort Worth, Texas</p>
+    <p>CeilingSAM Storage Elevator systems, sold and professionally installed in DFW</p>
+    <p>Contact us through the <a href="book.html">booking form</a> and we will get back to you</p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var form = document.getElementById('installerForm');
+  var message = document.getElementById('formMessage');
+  form.addEventListener('submit', function (event) {
+    event.preventDefault();
+    message.className = 'form-message';
+    message.textContent = '';
+    var data = { formType: 'installer' };
+    var fields = new FormData(form);
+    fields.forEach(function (value, key) {
+      if (key !== 'formType') data[key] = value;
+    });
+    if (!data.name || !data.phone || !data.email) {
+      message.className = 'form-message error';
+      message.textContent = 'Please fill in your name, phone, and email.';
+      return;
+    }
+    fetch('/api/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    }).then(function (res) {
+      return res.json().then(function (body) { return { ok: res.ok && body.ok, body: body }; });
+    }).then(function (result) {
+      if (result.ok) {
+        message.className = 'form-message success';
+        message.textContent = 'Thank you. Your application was received. We will review it and contact you if you are approved.';
+        form.reset();
+      } else {
+        message.className = 'form-message error';
+        message.textContent = 'Something went wrong and your application was not sent. Please try again, or contact SkyGarage Storage directly.';
+      }
+    }).catch(function () {
+      message.className = 'form-message error';
+      message.textContent = 'Something went wrong and your application was not sent. Please check your connection and try again.';
+    });
+  });
+})();
+</script>
+
+</body>
+</html>
