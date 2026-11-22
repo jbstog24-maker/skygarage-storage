@@ -345,3 +345,10 @@ a:hover { text-decoration: underline; }
   .btn-secondary { margin-left: 0; margin-top: 10px; }
   .section { padding: 40px 0; }
 }
+
+.site-photo { width: 100%; height: auto; display: block; border-radius: 12px; }
+.hero-photo { margin-top: 36px; box-shadow: 0 12px 32px rgba(11, 37, 69, 0.18); }
+.photo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; max-width: 1000px; margin: 0 auto; }
+.photo-card { margin: 0; }
+.photo-card figcaption { text-align: center; color: var(--gray-600); margin-top: 10px; font-size: 0.95rem; }
+@media (max-width: 759px) { .photo-grid { grid-template-columns: 1fr; } }
