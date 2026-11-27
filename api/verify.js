@@ -1,5 +1,15 @@
 // SkyGarage Storage installer login.
 // Accepts POST JSON { code } and compares it to INSTALLER_ACCESS_CODE.
+// On success it sets a SIGNED session cookie (HMAC of a fixed label,
+// keyed by the access code itself), so the cookie value cannot be
+// forged by anyone who does not know the code. The previous literal
+// value "ok" was forgeable by hand (fixed 2026-11-27).
+
+var crypto = require('crypto');
+
+function sessionValue(expected) {
+  return crypto.createHmac('sha256', expected).update('sg-installer-v1').digest('hex');
+}
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -28,7 +38,7 @@ module.exports = async function handler(req, res) {
   if (code && code === expected) {
     res.setHeader(
       'Set-Cookie',
-      'sg_installer=ok; HttpOnly; Path=/; Max-Age=604800; SameSite=Lax; Secure'
+      'sg_installer=' + sessionValue(expected) + '; HttpOnly; Path=/; Max-Age=604800; SameSite=Lax; Secure'
     );
     res.status(200).json({ ok: true });
     return;
